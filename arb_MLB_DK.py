@@ -13,53 +13,47 @@ for table in tables:
     rows = table.find_all('tr')
 
     for row in rows:
-        # Extract and clean team name (remove pitcher info)
         th = row.find('th')
         if not th:
-            continue  # skip header/time rows
-
+            continue  # skip extra rows
+        
+        # extract team name
         team_name_tag = th.find('div', class_ = "event-cell__name-text")
         if team_name_tag:
             team_name = team_name_tag.get_text(strip=True)
         else:
             team_name = th.get_text(strip=True)
 
-        # Extract and clean odds
+        # clean odds data
         td_elements = row.find_all('td')
         odds = [td.get_text(strip=True).replace('\xa0', ' ') for td in td_elements]
 
         if odds:
             combined_rows.append([team_name] + odds)
 
-# For printing
-# print("TEAM | RUN LINE | TOTAL | MONEYLINE")
-# print("-" * 60)
-# for row in combined_rows:
-#     print(" | ".join(row))
+# Convert data into pandas df
 
 games = []
 
 for i in range(0, len(combined_rows), 2):
     try:
-        # Home and away teams
+        # home and away teams
         away = combined_rows[i]
         home = combined_rows[i + 1]
 
-        # Extract team names
+        # team names
         away_team = away[0]
         home_team = home[0]
 
-        # Extract spreads: assumed format e.g. "-5.5+108" or "+5.5−140"
-        # Separate the points and the odds (last 3-4 chars likely odds)
-        # Adjust this parsing if your odds can be longer or have spaces
+        #spreads: format from above "-5.5+108" or "+5.5−140"
 
         def parse_spread(spread_str):
             import re
-            # Regex to split points (including + or - and decimal) and odds (with sign)
+            # regex to split points (including + or - and decimal) and odds (with sign)
             match = re.match(r'([+-]?\d+(\.\d+)?)([+\-−]\d+)', spread_str)
             if match:
                 pts = match.group(1)
-                odds = match.group(3).replace('−', '-')  # Normalize minus sign
+                odds = match.group(3).replace('−', '-')  # normalize minus sign
                 return pts, odds
             else:
                 return None, None
@@ -68,7 +62,7 @@ for i in range(0, len(combined_rows), 2):
         home_spread_pts, home_spread_odds = parse_spread(home[1])
 
         # Extract totals from one row (usually both same)
-        # Format example: "O9.5−102" or "U9.5−127"
+        # "O9.5−102" or "U9.5−127"
         def parse_total(total_str):
             import re
             # "O" or "U" followed by points and odds
@@ -84,10 +78,9 @@ for i in range(0, len(combined_rows), 2):
         total_over_side, total_pts_over, total_over_odds = parse_total(away[2])
         total_under_side, total_pts_under, total_under_odds = parse_total(home[2])
 
-        # Usually total points are the same for O and U, so confirm or fallback
         total_pts = total_pts_over or total_pts_under
 
-        # Extract moneyline odds
+        # moneyline odds
         away_moneyline = away[3] if len(away) > 3 else None
         home_moneyline = home[3] if len(home) > 3 else None
 
