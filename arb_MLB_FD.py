@@ -28,56 +28,78 @@ odds_params = {
 
 # Have to update these constantly 
 odds_json = {
-    'marketIds': [
-        '734.131552906',
-        '734.131548191',
-        '734.131552907',
-        '734.131498713',
-        '734.131422800',
-        '734.131498716',
-        '734.131498533',
-        '734.131423001',
-        '734.131498534',
-        '734.131498953',
-        '734.131422782',
-        '734.131498950',
-        '734.131499271',
-        '734.131422856',
-        '734.131499270',
-        '734.131498778',
-        '734.131422960',
-        '734.131498780',
-        '734.131499477',
-        '734.131422779',
-        '734.131499476',
-        '734.131501546',
-        '734.131422780',
-        '734.131501543',
-        '734.131501600',
-        '734.131422783',
-        '734.131501596',
-        '734.131501442',
-        '734.131423029',
-        '734.131501449',
-        '734.131501329',
-        '734.131423035',
-        '734.131501328',
-        '734.131500944',
-        '734.131422930',
-        '734.131500949',
-        '734.131500876',
-        '734.131422851',
-        '734.131500872',
-        '734.131500642',
-        '734.131422876',
-        '734.131500637',
-        '734.131500308',
-        '734.131423021',
-        '734.131500304',
-        '734.131499735',
-        '734.131423026',
-        '734.131499737',
-    ],
+   'marketIds': [
+        '734.131700405',
+        '734.131573861',
+        '734.131700412',
+        '734.131700622',
+        '734.131573845',
+        '734.131700623',
+        '734.131633863',
+        '734.131573850',
+        '734.131633864',
+        '734.131634161',
+        '734.131573848',
+        '734.131634158',
+        '734.131634019',
+        '734.131573872',
+        '734.131634021',
+        '734.131634547',
+        '734.131573846',
+        '734.131634552',
+        '734.131634775',
+        '734.131573851',
+        '734.131634778',
+        '734.131634428',
+        '734.131573855',
+        '734.131634434',
+        '734.131667087',
+        '734.131573859',
+        '734.131667094',
+        '734.131634293',
+        '734.131573870',
+        '734.131634290',
+        '734.131634855',
+        '734.131573854',
+        '734.131634850',
+        '734.131635175',
+        '734.131573873',
+        '734.131635178',
+        '734.131635268',
+        '734.131573862',
+        '734.131635265',
+        '734.131635481',
+        '734.131573838',
+        '734.131635489',
+        '734.131763502',
+        '734.131709198',
+        '734.131763499',
+        '734.131763391',
+        '734.131709199',
+        '734.131763396',
+        '734.131763632',
+        '734.131709219',
+        '734.131763633',
+        '734.131763960',
+        '734.131709212',
+        '734.131763959',
+        '734.131763847',
+        '734.131709213',
+        '734.131763851',
+        '734.131764141',
+        '734.131709190',
+        '734.131764136',
+        '734.131764067',
+        '734.131709194',
+        '734.131764061',
+        '734.131764097',
+        '734.131709195',
+        '734.131764099',
+        '734.131764220',
+        '734.131709197',
+        '734.131764222',
+        '734.131763985',
+   ]
 }
 
 odds_response = requests.post(
@@ -121,23 +143,53 @@ data = marketID_response.json()
 markets = data['attachments']['markets']
 events = data['attachments']['events']
 
-games = defaultdict(dict)
+# Define dictionary where the key is the tuple (home_team, away_team) and it links to the fields of the diff bets and odds
+games = {}
 
 for market_id in odds_json['marketIds']:
     market = markets[market_id]
     event_id = str(market.get('eventId'))
     event_info = events.get(event_id)
+    if not event_info:
+        continue  # or log error
 
-    if event_info:
-        matchup = event_info['name']
-        parts = matchup.split(' @ ')
-        away_team = parts[0].split(' (')[0]
-        home_team = parts[1].split(' (')[0]
-    else:
-        matchup = "Unknown Matchup"
+    bet_type = market['marketName']
+    matchup = event_info['name']
 
-    print(f"Market: {market.get('marketName')} | Matchup: {home_team} @ {away_team}")
+    parts = matchup.split(' @ ')
+    away_team = parts[0].split(' (')[0]
+    home_team = parts[1].split(' (')[0]
+    match_key = (home_team, away_team)
+
+    games.setdefault(match_key, {
+        "TEAM_AWAY": away_team,
+        "TEAM_HOME": home_team
+    })
+
     for runner in market.get('runners', []):
         name = runner['runnerName']
-        odds = runner['winRunnerOdds']['americanDisplayOdds']['americanOdds'] # Can switch out with ['decimalOdds']['decimalOdds']
-        print(f"  {name}: {odds}")
+        odds = runner['winRunnerOdds']['americanDisplayOdds']['americanOdds']
+
+        if bet_type == "Moneyline":
+            if name == away_team:
+                games[match_key]["MONEYLINE_AWAY"] = odds
+            elif name == home_team:
+                games[match_key]["MONEYLINE_HOME"] = odds
+        elif bet_type == "Run Line":
+            pts = runner["handicap"]
+            if name == away_team:
+                games[match_key]["SPREAD_AWAY_ODDS"] = odds
+                games[match_key]["SPREAD_AWAY_PTS"] = pts
+            elif name == home_team:
+                games[match_key]["SPREAD_HOME_ODDS"] = odds
+                games[match_key]["SPREAD_HOME_PTS"] = pts
+        elif bet_type == "Total Runs":
+            total = runner["handicap"]
+            games[match_key]["TOTAL_PTS"] = total
+            if name == "Over":
+                games[match_key]["TOTAL_OVER_ODDS"] = odds
+            elif name == "Under":
+                games[match_key]["TOTAL_UNDER_ODDS"] = odds
+        
+df = pd.DataFrame(games.values())
+print(df)
