@@ -77,8 +77,6 @@ for market_id in market_ids:
     market = markets[market_id]
     event_id = str(market.get('eventId'))
     event_info = events.get(event_id)
-    if not event_info:
-        continue  # or log error
 
     bet_type = market['marketName']
     matchup = event_info['name']
