@@ -1,3 +1,4 @@
+from collections import defaultdict
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
@@ -25,47 +26,57 @@ odds_params = {
     'priceHistory': '0',
 }
 
+# Have to update these constantly 
 odds_json = {
     'marketIds': [
-        '734.131210983',
-        '734.131138388',
-        '734.131210972',
-        '734.131211071',
-        '734.131138308',
-        '734.131211070',
-        '734.131211099',
-        '734.131138389',
-        '734.131211095',
-        '734.131376739',
-        '734.131279849',
-        '734.131376735',
-        '734.131351441',
-        '734.131279852',
-        '734.131351442',
-        '734.131352000',
-        '734.131279831',
-        '734.131352005',
-        '734.131352172',
-        '734.131279862',
-        '734.131352173',
-        '734.131383407',
-        '734.131279854',
-        '734.131383408',
-        '734.131352206',
-        '734.131279856',
-        '734.131352211',
-        '734.131352272',
-        '734.131279836',
-        '734.131352267',
-        '734.131352322',
-        '734.131279861',
-        '734.131352326',
-        '734.131352418',
-        '734.131279851',
-        '734.131352424',
-        '734.131352473',
-        '734.131279844',
-        '734.131352466',
+        '734.131552906',
+        '734.131548191',
+        '734.131552907',
+        '734.131498713',
+        '734.131422800',
+        '734.131498716',
+        '734.131498533',
+        '734.131423001',
+        '734.131498534',
+        '734.131498953',
+        '734.131422782',
+        '734.131498950',
+        '734.131499271',
+        '734.131422856',
+        '734.131499270',
+        '734.131498778',
+        '734.131422960',
+        '734.131498780',
+        '734.131499477',
+        '734.131422779',
+        '734.131499476',
+        '734.131501546',
+        '734.131422780',
+        '734.131501543',
+        '734.131501600',
+        '734.131422783',
+        '734.131501596',
+        '734.131501442',
+        '734.131423029',
+        '734.131501449',
+        '734.131501329',
+        '734.131423035',
+        '734.131501328',
+        '734.131500944',
+        '734.131422930',
+        '734.131500949',
+        '734.131500876',
+        '734.131422851',
+        '734.131500872',
+        '734.131500642',
+        '734.131422876',
+        '734.131500637',
+        '734.131500308',
+        '734.131423021',
+        '734.131500304',
+        '734.131499735',
+        '734.131423026',
+        '734.131499737',
     ],
 }
 
@@ -110,21 +121,23 @@ data = marketID_response.json()
 markets = data['attachments']['markets']
 events = data['attachments']['events']
 
+games = defaultdict(dict)
+
 for market_id in odds_json['marketIds']:
     market = markets[market_id]
     event_id = str(market.get('eventId'))
     event_info = events.get(event_id)
 
-    # Need to fix this part up
-    # if event_info:
-    #     home = event_info.get('homeTeam', 'Unknown')
-    #     away = event_info.get('awayTeam', 'Unknown')
-    #     matchup = f"{away} @ {home}"
-    # else:
-    #     matchup = "Unknown Matchup"
+    if event_info:
+        matchup = event_info['name']
+        parts = matchup.split(' @ ')
+        away_team = parts[0].split(' (')[0]
+        home_team = parts[1].split(' (')[0]
+    else:
+        matchup = "Unknown Matchup"
 
-    print(f"Market: {market.get('marketName')} | Matchup: {matchup}")
+    print(f"Market: {market.get('marketName')} | Matchup: {home_team} @ {away_team}")
     for runner in market.get('runners', []):
         name = runner['runnerName']
-        odds = runner['winRunnerOdds']['americanDisplayOdds']['americanOdds']
+        odds = runner['winRunnerOdds']['americanDisplayOdds']['americanOdds'] # Can switch out with ['decimalOdds']['decimalOdds']
         print(f"  {name}: {odds}")
