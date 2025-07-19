@@ -95,3 +95,50 @@ for _, row_dk in df_dk.iterrows():
         print(f" Implied Probability Sum: {inv_sum:.3f}")
         b1, b2, payout, profit = calculate_arb_bets(best_home_odds, best_away_odds)
         print(f" Optimal Betting, Home:{b1}, Away:{b2}, Payout:{payout}, Profit:{profit}\n")
+    
+    # Total points O/U Lines
+    totals_odds = {}
+
+    # DraftKings totals
+    if not pd.isna(row_dk['TOTAL_PTS']):
+        dk_line = row_dk['TOTAL_PTS']
+        dk_over = row_dk['TOTAL_OVER_ODDS']
+        dk_under = row_dk['TOTAL_UNDER_ODDS']
+        totals_odds['DraftKings'] = (dk_line, dk_over, dk_under)
+
+    if not match_fd.empty and not pd.isna(match_fd.iloc[0]['TOTAL_PTS']):
+        fd_line = match_fd.iloc[0]['TOTAL_PTS']
+        fd_over = match_fd.iloc[0]['TOTAL_OVER_ODDS']
+        fd_under = match_fd.iloc[0]['TOTAL_UNDER_ODDS']
+        totals_odds['FanDuel'] = (fd_line, fd_over, fd_under)
+
+    if not match_espn.empty and not pd.isna(match_espn.iloc[0]['TOTAL_PTS']):
+        espn_line = match_espn.iloc[0]['TOTAL_PTS']
+        espn_over = match_espn.iloc[0]['TOTAL_OVER_ODDS']
+        espn_under = match_espn.iloc[0]['TOTAL_UNDER_ODDS']
+        totals_odds['ESPN'] = (espn_line, espn_over, espn_under)
+
+    # Find arbitrage opportunities on totals (only if all lines match)
+    over_odds_list = []
+    under_odds_list = []
+    lines_seen = set()
+
+    for source, (line, over, under) in totals_odds.items():
+        lines_seen.add(line)
+        over_odds_list.append((source, over))
+        under_odds_list.append((source, under))
+
+    if len(lines_seen) == 1:  # Make sure they are for the same line
+        best_over_source, best_over_odds = max(over_odds_list, key=lambda x: x[1])
+        best_under_source, best_under_odds = max(under_odds_list, key=lambda x: x[1])
+
+        inv_total = 1 / best_over_odds + 1 / best_under_odds
+
+        if inv_total < 1:
+            print(f"--- TOTAL POINTS ARBITRAGE (Line: {lines_seen.pop()}) ---")
+            print(f"{away} @ {home}")
+            print(f" Best OVER:  {best_over_odds:.2f} from {best_over_source} | American: {decimalToAmerican(best_over_odds)}")
+            print(f" Best UNDER: {best_under_odds:.2f} from {best_under_source} | American: {decimalToAmerican(best_under_odds)}")
+            print(f" Implied Probability Sum: {inv_total:.3f}")
+            b1, b2, payout, profit = calculate_arb_bets(best_over_odds, best_under_odds)
+            print(f" Optimal Betting, Over:{b1:.2f}, Under:{b2:.2f}, Payout:{payout:.2f}, Profit:{profit:.2f}\n")
