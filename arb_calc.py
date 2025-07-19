@@ -6,6 +6,14 @@ df_dk = pd.read_csv('draftkings_odds.csv')
 df_fd = pd.read_csv('fanduel_odds.csv')
 df_espn = pd.read_csv('espn_odds.csv')
 
+# helper function to calculate optimal betting amount based on arb/odds
+def calculate_arb_bets(odds1, odds2, total_stake=100):
+    b1 = total_stake / ((odds1 / odds2) + 1)
+    b2 = total_stake - b1
+    payout = round(b1 * odds1, 2)
+    profit = round(payout - total_stake, 2)
+    return round(b1, 2), round(b2, 2), payout, profit
+
 # Draft Kings stores team names abbreviated so this mapping dict is necessary to match fanduel
 team_name_map = {
     "ARI Diamondbacks": "Arizona Diamondbacks",
@@ -84,4 +92,6 @@ for _, row_dk in df_dk.iterrows():
         print(f"Arbitrage Found: {away} @ {home}")
         print(f" Best Home ML: {best_home_odds:.2f} (Decimal) from {best_home_source} | American: {decimalToAmerican(best_home_odds)}")
         print(f" Best Away ML: {best_away_odds:.2f} (Decimal) from {best_away_source} | American: {decimalToAmerican(best_away_odds)}")
-        print(f" Implied Probability Sum: {inv_sum:.3f}\n")
+        print(f" Implied Probability Sum: {inv_sum:.3f}")
+        b1, b2, payout, profit = calculate_arb_bets(best_home_odds, best_away_odds)
+        print(f" Optimal Betting, Home:{b1}, Away:{b2}, Payout:{payout}, Profit:{profit}\n")
