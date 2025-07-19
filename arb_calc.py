@@ -1,7 +1,9 @@
 import pandas as pd
+from utilFuncs import decimalToAmerican
 
 df_dk = pd.read_csv('draftkings_odds.csv')
 df_fd = pd.read_csv('fanduel_odds.csv')
+df_espn = pd.read_csv('espn_odds.csv')
 
 # Draft Kings stores team names abbreviated so this mapping dict is necessary to match fanduel
 team_name_map = {
@@ -45,28 +47,40 @@ for _, row_dk in df_dk.iterrows():
     away = row_dk['TEAM_AWAY']
     
     # find a matching row in FanDuel
-    match = df_fd[
-        (df_fd['TEAM_HOME'] == home) & 
-        (df_fd['TEAM_AWAY'] == away)
-    ]
+    match_fd = df_fd[(df_fd['TEAM_HOME'] == home) & (df_fd['TEAM_AWAY'] == away)]
+    match_espn = df_espn[(df_espn['TEAM_HOME'] == home) & (df_espn['TEAM_AWAY'] == away)]
 
-    if not match.empty:
-        row_fd = match.iloc[0]
-        
-        # collect all 4 odds
-        dk_home = row_dk['MONEYLINE_HOME']
-        dk_away = row_dk['MONEYLINE_AWAY']
-        fd_home = row_fd['MONEYLINE_HOME']
-        fd_away = row_fd['MONEYLINE_AWAY']
+    # Gather all available odds in a dict: {source: (home_odds, away_odds)}
+    odds_sources = {}
 
-        # check for arb opp by comparing best odds from either book
-        best_home = max(dk_home, fd_home)
-        best_away = max(dk_away, fd_away)
+    # DraftKings odds (assumed decimal)
+    dk_home = row_dk['MONEYLINE_HOME']
+    dk_away = row_dk['MONEYLINE_AWAY']
+    odds_sources['DraftKings'] = (dk_home, dk_away)
 
-        inv_sum = 1 / best_home + 1 / best_away
+    # FanDuel odds if available
+    if not match_fd.empty:
+        fd_home = match_fd.iloc[0]['MONEYLINE_HOME']
+        fd_away = match_fd.iloc[0]['MONEYLINE_AWAY']
+        odds_sources['FanDuel'] = (fd_home, fd_away)
 
-        if inv_sum < 1:
-            print(f"  Arbitrage Found: {away} @ {home}")
-            print(f"  Best Home ML: {best_home}")
-            print(f"  Best Away ML: {best_away}")
-            print(f"  Implied Probability Sum: {inv_sum:.3f}\n")
+    # ESPN odds if available
+    if not match_espn.empty:
+        espn_home = match_espn.iloc[0]['MONEYLINE_HOME']
+        espn_away = match_espn.iloc[0]['MONEYLINE_AWAY']
+        odds_sources['ESPN'] = (espn_home, espn_away)
+
+    # Find best home and away odds and source
+    best_home_source, best_home_pair = max(odds_sources.items(), key=lambda x: x[1][0])
+    best_home_odds = best_home_pair[0]
+
+    best_away_source, best_away_pair = max(odds_sources.items(), key=lambda x: x[1][1])
+    best_away_odds = best_away_pair[1]
+
+    inv_sum = 1 / best_home_odds + 1 / best_away_odds
+
+    if inv_sum < 1:
+        print(f"Arbitrage Found: {away} @ {home}")
+        print(f" Best Home ML: {best_home_odds:.2f} (Decimal) from {best_home_source} | American: {decimalToAmerican(best_home_odds)}")
+        print(f" Best Away ML: {best_away_odds:.2f} (Decimal) from {best_away_source} | American: {decimalToAmerican(best_away_odds)}")
+        print(f" Implied Probability Sum: {inv_sum:.3f}\n")

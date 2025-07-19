@@ -2,6 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 import re
+from utilFuncs import convertAmericanStrToDec
 
 url = "https://sportsbook.draftkings.com/leagues/baseball/mlb"
 page = requests.get(url)
@@ -10,16 +11,6 @@ tables = soup.find_all('table')
 
 combined_rows = []
 
-
-def convertAmericanToDec(strOdds):
-    if strOdds:
-        odds = int(strOdds.replace('−', '-').replace('+', ''))
-        if odds > 0:
-            return float(1 + (odds/100)) 
-        else:
-            return float(1 + (100 / abs(odds)))
-    else:
-        return None
 
 for table in tables:
     rows = table.find_all('tr')
@@ -97,15 +88,15 @@ for i in range(0, len(combined_rows), 2):
         game_data = {
             "TEAM_AWAY": away_team,
             "SPREAD_AWAY_PTS": away_spread_pts,
-            "SPREAD_AWAY_ODDS": convertAmericanToDec(away_spread_odds),
+            "SPREAD_AWAY_ODDS": convertAmericanStrToDec(away_spread_odds),
             "TEAM_HOME": home_team,
             "SPREAD_HOME_PTS": home_spread_pts,
-            "SPREAD_HOME_ODDS": convertAmericanToDec(home_spread_odds),
+            "SPREAD_HOME_ODDS": convertAmericanStrToDec(home_spread_odds),
             "TOTAL_PTS": total_pts,
-            "TOTAL_OVER_ODDS": convertAmericanToDec(total_over_odds),
-            "TOTAL_UNDER_ODDS": convertAmericanToDec(total_under_odds),
-            "MONEYLINE_AWAY": convertAmericanToDec(away_moneyline),
-            "MONEYLINE_HOME": convertAmericanToDec(home_moneyline),
+            "TOTAL_OVER_ODDS": convertAmericanStrToDec(total_over_odds),
+            "TOTAL_UNDER_ODDS": convertAmericanStrToDec(total_under_odds),
+            "MONEYLINE_AWAY": convertAmericanStrToDec(away_moneyline),
+            "MONEYLINE_HOME": convertAmericanStrToDec(home_moneyline),
         }
 
         games.append(game_data)
