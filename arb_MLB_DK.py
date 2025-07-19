@@ -96,7 +96,9 @@ for i in range(0, len(combined_rows), 2):
             "TOTAL_OVER_ODDS": convertAmericanStrToDec(total_over_odds),
             "TOTAL_UNDER_ODDS": convertAmericanStrToDec(total_under_odds),
             "MONEYLINE_AWAY": convertAmericanStrToDec(away_moneyline),
+            "MONEYLINE_AWAY_AM": away_moneyline,
             "MONEYLINE_HOME": convertAmericanStrToDec(home_moneyline),
+            "MONEYLINE_HOME_AM": home_moneyline,
         }
 
         games.append(game_data)

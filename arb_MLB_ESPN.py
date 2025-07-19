@@ -73,15 +73,17 @@ for game in games:
     game_data = {
         "TEAM_AWAY": away_team,
         "SPREAD_AWAY_PTS": away_spread_pts,
-        "SPREAD_AWAY_ODDS": convertAmericanStrToDec(away_spread_odds),
+        "SPREAD_AWAY_ODDS": convertAmericanStrToDec(away_spread_odds) if away_spread_odds != 0 else 0,
         "TEAM_HOME": home_team,
         "SPREAD_HOME_PTS": home_spread_pts,
-        "SPREAD_HOME_ODDS": convertAmericanStrToDec(home_spread_odds),
+        "SPREAD_HOME_ODDS": convertAmericanStrToDec(home_spread_odds) if home_spread_odds != 0 else 0,
         "TOTAL_PTS": total_pts,
-        "TOTAL_OVER_ODDS": convertAmericanIntToDec(total_over_odds),
-        "TOTAL_UNDER_ODDS": convertAmericanIntToDec(total_under_odds),
-        "MONEYLINE_AWAY": convertAmericanIntToDec(away_moneyline),
-        "MONEYLINE_HOME": convertAmericanIntToDec(home_moneyline),
+        "TOTAL_OVER_ODDS": convertAmericanIntToDec(total_over_odds) if total_over_odds != 0 else 0,
+        "TOTAL_UNDER_ODDS": convertAmericanIntToDec(total_under_odds) if total_under_odds != 0 else 0,
+        "MONEYLINE_AWAY": convertAmericanIntToDec(away_moneyline) if away_moneyline != 0 else 0,
+        "MONEYLINE_AWAY_AM": away_moneyline,
+        "MONEYLINE_HOME": convertAmericanIntToDec(home_moneyline) if home_moneyline != 0 else 0,
+        "MONEYLINE_HOME_AM": home_moneyline,
     }
 
     game_list.append(game_data)
