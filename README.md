@@ -3,13 +3,12 @@ A bot that scrapes live odds data from sportsbook sites and tries to figure out 
 - currently only scrapes FanDuel and DraftKings MLB money line odds
 
 # To Run:
-- give bash script permissons
+1. Give bash script permissons
 ```
 chmod +x make_me_money.sh
 ```
 
-- run bash script
+2. Run bash script
+```
 ./make_me_money
-
-
-
+```
