@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 import requests
 import pandas as pd
+import re
 
 url = "https://sportsbook.draftkings.com/leagues/baseball/mlb"
 page = requests.get(url)
@@ -42,7 +43,6 @@ for table in tables:
         if odds:
             combined_rows.append([team_name] + odds)
 
-# Convert data into pandas df
 
 games = []
 
@@ -56,10 +56,9 @@ for i in range(0, len(combined_rows), 2):
         away_team = away[0]
         home_team = home[0]
 
-        # spreads: format from above "-5.5+108" or "+5.5−140"
-
+        # helper func to parse through spread
+        # ex input: "-5.5+108" or "+5.5−140"
         def parse_spread(spread_str):
-            import re
             # regex to split points (including + or - and decimal) and odds (with sign)
             match = re.match(r'([+-]?\d+(\.\d+)?)([+\-−]\d+)', spread_str)
             if match:
@@ -72,8 +71,8 @@ for i in range(0, len(combined_rows), 2):
         away_spread_pts, away_spread_odds = parse_spread(away[1])
         home_spread_pts, home_spread_odds = parse_spread(home[1])
 
-        # Extract totals from one row (usually both same)
-        # "O9.5−102" or "U9.5−127"
+        # extract totals from one row (usually both same)
+        # ex: "O9.5−102" or "U9.5−127"
         def parse_total(total_str):
             import re
             # "O" or "U" followed by points and odds
@@ -112,11 +111,10 @@ for i in range(0, len(combined_rows), 2):
         games.append(game_data)
 
     except IndexError:
-        # In case rows are not perfectly paired, skip last incomplete game
         pass
 
 
-# Convert to pandas df and csv to use elsewhere
+# conv to pandas df and csv to use elsewhere
 df = pd.DataFrame(games)
 df.to_csv('draftkings_odds.csv', index=False)
 

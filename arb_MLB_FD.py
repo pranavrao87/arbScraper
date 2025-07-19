@@ -45,7 +45,7 @@ for market_id, market in markets.items():
         market_ids.append(market_id)
 
 
-# Define dictionary where the key is the tuple (home_team, away_team) and it links to the fields of the diff bets and odds
+# define dictionary where the key is the tuple (home_team, away_team) and it links to the fields of the diff bets and odds
 games = {}
 
 def update_game_odds(games, match_key, bet_type, runner, home_team, away_team):
@@ -95,7 +95,7 @@ for market_id in market_ids:
         update_game_odds(games, match_key, bet_type, runner, home_team, away_team)
 
 
-# Convert Dictionary to pd df and csv
+# conv dict to pd df and csv
 df = pd.DataFrame(games.values())
 df.to_csv('fanduel_odds.csv', index=False)
 

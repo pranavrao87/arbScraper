@@ -40,12 +40,11 @@ team_name_map = {
 df_dk['TEAM_HOME'] = df_dk['TEAM_HOME'].map(team_name_map)
 df_dk['TEAM_AWAY'] = df_dk['TEAM_AWAY'].map(team_name_map)
 
-# Loop through DraftKings DataFrame
 for _, row_dk in df_dk.iterrows():
     home = row_dk['TEAM_HOME']
     away = row_dk['TEAM_AWAY']
     
-    # Try to find a matching row in FanDuel
+    # find a matching row in FanDuel
     match = df_fd[
         (df_fd['TEAM_HOME'] == home) & 
         (df_fd['TEAM_AWAY'] == away)
@@ -54,13 +53,13 @@ for _, row_dk in df_dk.iterrows():
     if not match.empty:
         row_fd = match.iloc[0]
         
-        # Collect all 4 odds
+        # collect all 4 odds
         dk_home = row_dk['MONEYLINE_HOME']
         dk_away = row_dk['MONEYLINE_AWAY']
         fd_home = row_fd['MONEYLINE_HOME']
         fd_away = row_fd['MONEYLINE_AWAY']
 
-        # Check for arbitrage opportunities by comparing best odds from either book
+        # check for arb opp by comparing best odds from either book
         best_home = max(dk_home, fd_home)
         best_away = max(dk_away, fd_away)
 
