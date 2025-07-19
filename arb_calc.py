@@ -99,26 +99,28 @@ for _, row_dk in df_dk.iterrows():
     # Total points O/U Lines
     totals_odds = {}
 
-    # DraftKings totals
+    # DK
     if not pd.isna(row_dk['TOTAL_PTS']):
         dk_line = row_dk['TOTAL_PTS']
         dk_over = row_dk['TOTAL_OVER_ODDS']
         dk_under = row_dk['TOTAL_UNDER_ODDS']
         totals_odds['DraftKings'] = (dk_line, dk_over, dk_under)
 
+    # FD
     if not match_fd.empty and not pd.isna(match_fd.iloc[0]['TOTAL_PTS']):
         fd_line = match_fd.iloc[0]['TOTAL_PTS']
         fd_over = match_fd.iloc[0]['TOTAL_OVER_ODDS']
         fd_under = match_fd.iloc[0]['TOTAL_UNDER_ODDS']
         totals_odds['FanDuel'] = (fd_line, fd_over, fd_under)
 
+    # ESPN
     if not match_espn.empty and not pd.isna(match_espn.iloc[0]['TOTAL_PTS']):
         espn_line = match_espn.iloc[0]['TOTAL_PTS']
         espn_over = match_espn.iloc[0]['TOTAL_OVER_ODDS']
         espn_under = match_espn.iloc[0]['TOTAL_UNDER_ODDS']
         totals_odds['ESPN'] = (espn_line, espn_over, espn_under)
 
-    # Find arbitrage opportunities on totals (only if all lines match)
+    # fin arb opportunities on totals (only if all lines match)
     over_odds_list = []
     under_odds_list = []
     lines_seen = set()
@@ -128,7 +130,7 @@ for _, row_dk in df_dk.iterrows():
         over_odds_list.append((source, over))
         under_odds_list.append((source, under))
 
-    if len(lines_seen) == 1:  # Make sure they are for the same line
+    if len(lines_seen) == 1:  # ensure opp is for the same line
         best_over_source, best_over_odds = max(over_odds_list, key=lambda x: x[1])
         best_under_source, best_under_odds = max(under_odds_list, key=lambda x: x[1])
 
