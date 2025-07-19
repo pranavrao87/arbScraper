@@ -98,6 +98,3 @@ for market_id in market_ids:
 # conv dict to pd df and csv
 df = pd.DataFrame(games.values())
 df.to_csv('fanduel_odds.csv', index=False)
-
-
-print(df)

@@ -117,5 +117,3 @@ for i in range(0, len(combined_rows), 2):
 # conv to pandas df and csv to use elsewhere
 df = pd.DataFrame(games)
 df.to_csv('draftkings_odds.csv', index=False)
-
-print(df)
