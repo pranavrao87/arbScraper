@@ -3,6 +3,7 @@ A bot that scrapes live odds data from sportsbook sites and tries to figure out 
 - currently only scrapes FanDuel, DraftKings, and ESPN for MLB odds
 
 # To Run:
+install required imports and set up venv then:
 1. Give bash script permissons
 ```
 chmod +x make_me_money.sh
