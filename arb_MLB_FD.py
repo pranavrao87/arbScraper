@@ -50,7 +50,7 @@ games = {}
 
 def update_game_odds(games, match_key, bet_type, runner, home_team, away_team):
     name = runner['runnerName']
-    odds = runner['winRunnerOdds']['americanDisplayOdds']['americanOdds']
+    odds = runner['winRunnerOdds']['trueOdds']['decimalOdds']['decimalOdds']
     pts = runner.get("handicap", None)
 
     if bet_type == "Moneyline":
@@ -95,5 +95,9 @@ for market_id in market_ids:
         update_game_odds(games, match_key, bet_type, runner, home_team, away_team)
 
 
-# Convert Dictionary to pd df
+# Convert Dictionary to pd df and csv
 df = pd.DataFrame(games.values())
+df.to_csv('fanduel_odds.csv', index=False)
+
+
+print(df)
