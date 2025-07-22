@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 import re
-from utilFuncs import convertAmericanStrToDec
+from arbScraper.utilFuncs import convertAmericanStrToDec
 
 url = "https://sportsbook.draftkings.com/leagues/baseball/mlb"
 page = requests.get(url)
