@@ -35,24 +35,30 @@ colNames = ['date','dblheader_code','day_of_week','team_v','league_v','game_no_v
            'misc_info','acqui_info'
            ]
 
-
 df = pd.DataFrame()
 for year in range(2010, 2025):
-    file = "/Users/Prana/Documents/arbScraper/gl/gl" + str(year) + ".txt"
+    file = "/Users/Prana/Documents/arbScraper/model/gl/gl" + str(year) + ".txt"
     df_temp = pd.read_csv(file, header=None)
     df_temp.columns = colNames
     df_temp['season'] = year
     df = pd.concat((df, df_temp))
 
 # drop columns that don't matter
-cols_to_drop = ['ballpark_id', 'attendance', 'ump_HB_id', 'ump_HB_name','ump_1B_id', 'ump_1B_name','ump_2B_id', 'ump_2B_name',
-            'ump_3B_id', 'ump_3B_name','ump_LF_id', 'ump_LF_name','ump_RF_id', 'ump_RF_name',
-            'mgr_id_v', 'mgr_name_v', 'mgr_id_h', 'mgr_name_h', 'batter5_name_h', 'batter5_id_h', 'batter5_pos_h',
-            'batter6_name_h', 'batter6_id_h', 'batter6_pos_h', 'batter7_name_h', 'batter7_id_h', 'batter7_pos_h',
-            'batter8_name_h', 'batter8_id_h', 'batter8_pos_h', 'batter9_name_h', 'batter9_id_h', 'batter9_pos_h', 
-            'batter5_name_v', 'batter5_id_v', 'batter5_pos_v', 'batter6_name_v', 'batter6_id_v', 'batter6_pos_v',
-            'batter7_name_v', 'batter7_id_v', 'batter7_pos_v', 'batter8_name_v', 'batter8_id_v', 'batter8_pos_v',
-            'batter9_name_v', 'batter9_id_v', 'batter9_pos_v', ]
+cols_to_drop = ['game_minutes', 'ballpark_id', 'attendance', 'ump_HB_id', 'ump_HB_name','ump_1B_id', 'ump_1B_name',
+                'ump_2B_id', 'ump_2B_name','ump_3B_id', 'ump_3B_name','ump_LF_id', 'ump_LF_name','ump_RF_id', 'ump_RF_name',
+                'pitcher_id_w','pitcher_name_w','pitcher_id_l','pitcher_name_l','pitcher_id_s','pitcher_name_s',
+                'pitcher_start_id_v','pitcher_start_name_v','pitcher_start_id_h','pitcher_start_name_h',
+                'mgr_id_v', 'mgr_name_v', 'mgr_id_h', 'mgr_name_h', 'batter4_name_h', 'batter4_id_h', 'batter4_pos_h',
+                'batter1_name_v', 'batter1_id_v', 'batter1_pos_v', 'batter2_name_v', 'batter2_id_v', 'batter2_pos_v',
+                'batter3_name_v', 'batter3_id_v', 'batter3_pos_v', 'batter4_name_v', 'batter4_id_v', 'batter4_pos_v',
+                'batter5_name_v', 'batter5_id_v', 'batter5_pos_v', 'batter6_name_v', 'batter6_id_v', 'batter6_pos_v',
+                'batter7_name_v', 'batter7_id_v', 'batter7_pos_v', 'batter8_name_v', 'batter8_id_v', 'batter8_pos_v',
+                'batter9_name_v', 'batter9_id_v', 'batter9_pos_v', 'batter1_name_h', 'batter1_id_h', 'batter1_pos_h',
+                'batter2_name_h', 'batter2_id_h', 'batter2_pos_h', 'batter3_name_h', 'batter3_id_h', 'batter3_pos_h',
+                'batter4_name_h', 'batter4_id_h', 'batter4_pos_h', 'batter5_name_h', 'batter5_id_h', 'batter5_pos_h',
+                'batter6_name_h', 'batter6_id_h', 'batter6_pos_h', 'batter7_name_h', 'batter7_id_h', 'batter7_pos_h',
+                'batter8_name_h', 'batter8_id_h', 'batter8_pos_h', 'batter9_name_h', 'batter9_id_h', 'batter9_pos_h',
+                'GWRBI_name', 'GWRBI_id', 'linescore_v','linescore_h']
 df.drop(columns=cols_to_drop, inplace=True)
 
 df['run_diff'] = df['runs_h']-df['runs_v']
@@ -156,5 +162,81 @@ for key, arr in stat_arrays.items():
     df[key] = arr
 
 df = df[df.run_diff != 0] # drop tie games from dataset b/c doesn't count as victory or loss
+
+
+## Adding odds data to main dataframe
+
+# Data only has odds ranging from 2012 - 2021
+odds_df = pd.read_csv("/Users/Prana/Documents/arbScraper/model/oddsDataMLB.csv")
+
+# odds_df and the main_df have diff abbreviations so convert odds_df abbreviations to match 
+abbreviation_map = {
+    'ARI': 'ARI',
+    'ATL': 'ATL',
+    'BAL': 'BAL',
+    'BOS': 'BOS',
+    'CHC': 'CHN',  # Chicago Cubs
+    'CIN': 'CIN',
+    'CLE': 'CLE',
+    'COL': 'COL',
+    'CWS': 'CHA',  # Chicago White Sox
+    'DET': 'DET',
+    'HOU': 'HOU',
+    'KC':  'KCA',  # Kansas City Royals
+    'LAA': 'ANA',  # Los Angeles Angels
+    'LAD': 'LAN',  # Los Angeles Dodgers
+    'MIA': 'MIA', 
+    'MIL': 'MIL',
+    'MIN': 'MIN',
+    'NYM': 'NYN',  # New York Mets
+    'NYY': 'NYA',  # New York Yankees
+    'OAK': 'OAK',
+    'PHI': 'PHI',
+    'PIT': 'PIT',
+    'SD':  'SDN',  # San Diego Padres
+    'SEA': 'SEA',
+    'SF':  'SFN',  # San Francisco Giants
+    'STL': 'SLN',  # St Louis Cardinals
+    'TB':  'TBA',  # Tampa Bay Rays
+    'TEX': 'TEX',
+    'TOR': 'TOR',
+    'WSH': 'WAS'   # Washington Nationals
+}
+odds_df["team"] = odds_df["team"].map(abbreviation_map)
+odds_df["opponent"] = odds_df["opponent"].map(abbreviation_map)
+
+# Start merging odds data database with original game data database to make it easier to train/evaluate model
+df['date'] = pd.to_datetime(df['date'], format="%Y%m%d")
+odds_df['date'] = pd.to_datetime(odds_df['date'])
+
+df['merge_key_home'] = (
+    df['date'].astype(str) + '_' +
+    df['team_h'] + '_' + df['team_v']
+)
+
+df['merge_key_away'] = (
+    df['date'].astype(str) + '_' +
+    df['team_v'] + '_' + df['team_h']
+)
+
+odds_df['merge_key'] = (
+    odds_df['date'].astype(str) + '_' +
+    odds_df['team'] + '_' + odds_df['opponent']
+)
+
+df = df.merge(
+    odds_df[['merge_key', 'moneyLine']].rename(columns={'moneyLine': 'ML_h'}),
+    left_on='merge_key_home',
+    right_on='merge_key',
+    how='left'
+).merge(
+    odds_df[['merge_key', 'moneyLine']].rename(columns={'moneyLine': 'ML_v'}),
+    left_on='merge_key_away',
+    right_on='merge_key',
+    how='left',
+    suffixes=('', '_away')
+)
+
+df.drop(columns=["merge_key_home", "merge_key_away", "merge_key"], inplace=True)
 
 df.to_csv('df_bp1.csv', index=False)
