@@ -209,6 +209,8 @@ odds_df["opponent"] = odds_df["opponent"].map(abbreviation_map)
 df['date'] = pd.to_datetime(df['date'], format="%Y%m%d")
 odds_df['date'] = pd.to_datetime(odds_df['date'])
 
+
+# Only merging ML for home/visiting teams for now can also merge o/u lines later
 df['merge_key_home'] = (
     df['date'].astype(str) + '_' +
     df['team_h'] + '_' + df['team_v']
@@ -238,5 +240,17 @@ df = df.merge(
 )
 
 df.drop(columns=["merge_key_home", "merge_key_away", "merge_key"], inplace=True)
+
+
+def americanToProb(odds):
+    if pd.isna(odds):
+        return None
+    if odds > 0:
+        return 100 / (odds + 100)
+    else:
+        return -odds / (-odds + 100)
+
+df["imp_prob_h"] = df["ML_h"].apply(americanToProb)
+df["imp_prob_v"] = df["ML_v"].apply(americanToProb)
 
 df.to_csv('df_bp1.csv', index=False)
