@@ -252,5 +252,6 @@ def americanToProb(odds):
 
 df["imp_prob_h"] = df["ML_h"].apply(americanToProb)
 df["imp_prob_v"] = df["ML_v"].apply(americanToProb)
+df["imp_prob_mid_h"] = (df["imp_prob_h"] + (1 - df["imp_prob_v"])) / 2
 
 df.to_csv('df_bp1.csv', index=False)

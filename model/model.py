@@ -71,5 +71,3 @@ for _, game in df_espn.iterrows():
 
     pitching_home_row = df_pitching[(df_standings["Tm"] == homeTeam)]
     pitching_away_row = df_pitching[(df_standings["Tm"] == awayTeam)]
-
-
