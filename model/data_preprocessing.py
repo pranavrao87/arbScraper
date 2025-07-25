@@ -128,7 +128,6 @@ def create_team_df(team):
     df_team.set_index('season_game', inplace=True)
     return(df_team)
 
-
 team_data_dict = {}
 for team in df.team_v.unique():
     team_data_dict[team] = create_team_df(team)
@@ -145,7 +144,8 @@ stat_arrays = {
 }
 
 # loop through each row and populate values
-for i, row in df.iterrows():
+i = 0
+for _, row in df.iterrows():
     home_team = row['team_h']
     visit_team = row['team_v']
     game_index_h = row['season'] * 1000 + row['game_no_h']
@@ -156,6 +156,7 @@ for i, row in df.iterrows():
             colname = f'rollsum_{stat}_{window}'
             stat_arrays[f'{stat}_{window}_h'][i] = team_data_dict[home_team].loc[game_index_h, colname]
             stat_arrays[f'{stat}_{window}_v'][i] = team_data_dict[visit_team].loc[game_index_v, colname]
+    i += 1
 
 # add arrays back to dataframe
 for key, arr in stat_arrays.items():
@@ -163,8 +164,7 @@ for key, arr in stat_arrays.items():
 
 df = df[df.run_diff != 0] # drop tie games from dataset b/c doesn't count as victory or loss
 
-
-## Adding odds data to main dataframe
+# Adding odds data to main dataframe
 
 # Data only has odds ranging from 2012 - 2021
 odds_df = pd.read_csv("/Users/Prana/Documents/arbScraper/model/oddsDataMLB.csv")
