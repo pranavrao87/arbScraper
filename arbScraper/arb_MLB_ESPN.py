@@ -1,7 +1,7 @@
 import requests
 from pprint import pprint
 import pandas as pd
-from arbScraper.utilFuncs import convertAmericanIntToDec, convertAmericanStrToDec
+from utilFuncs import convertAmericanIntToDec, convertAmericanStrToDec
 
 URL = "https://site.web.api.espn.com/apis/personalized/v2/scoreboard/header"
 headers = {

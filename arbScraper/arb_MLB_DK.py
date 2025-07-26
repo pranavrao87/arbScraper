@@ -2,7 +2,7 @@ from bs4 import BeautifulSoup
 import requests
 import pandas as pd
 import re
-from arbScraper.utilFuncs import convertAmericanStrToDec
+from utilFuncs import convertAmericanStrToDec
 
 url = "https://sportsbook.draftkings.com/leagues/baseball/mlb"
 page = requests.get(url)
@@ -58,6 +58,7 @@ for i in range(0, len(combined_rows), 2):
                 return pts, odds
             else:
                 return None, None
+
 
         away_spread_pts, away_spread_odds = parse_spread(away[1])
         home_spread_pts, home_spread_odds = parse_spread(home[1])

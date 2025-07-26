@@ -1,8 +1,7 @@
 import pandas as pd
-from arbScraper.utilFuncs import decimalToAmerican
-from pprint import pprint
+from utilFuncs import decimalToAmerican
 
-df_dk = pd.read_csv('draftkings_odds.csv')
+# df_dk = pd.read_csv('draftkings_odds.csv')
 df_fd = pd.read_csv('fanduel_odds.csv')
 df_espn = pd.read_csv('espn_odds.csv')
 
@@ -48,10 +47,10 @@ team_name_map = {
     "WSH Nationals": "Washington Nationals"
 }
 
-df_dk['TEAM_HOME'] = df_dk['TEAM_HOME'].map(team_name_map)
-df_dk['TEAM_AWAY'] = df_dk['TEAM_AWAY'].map(team_name_map)
+# df_dk['TEAM_HOME'] = df_dk['TEAM_HOME'].map(team_name_map)
+# df_dk['TEAM_AWAY'] = df_dk['TEAM_AWAY'].map(team_name_map)
 
-for _, row_dk in df_dk.iterrows():
+for _, row_dk in df_espn.iterrows():
     home = row_dk['TEAM_HOME']
     away = row_dk['TEAM_AWAY']
     
@@ -62,10 +61,10 @@ for _, row_dk in df_dk.iterrows():
     # Gather all available odds in a dict: {source: (home_odds, away_odds)}
     odds_sources = {}
 
-    # DraftKings odds (assumed decimal)
-    dk_home = row_dk['MONEYLINE_HOME']
-    dk_away = row_dk['MONEYLINE_AWAY']
-    odds_sources['DraftKings'] = (dk_home, dk_away)
+    # # DraftKings odds (assumed decimal)
+    # dk_home = row_dk['MONEYLINE_HOME']
+    # dk_away = row_dk['MONEYLINE_AWAY']
+    # odds_sources['DraftKings'] = (dk_home, dk_away)
 
     # FanDuel odds if available
     if not match_fd.empty:
@@ -100,11 +99,11 @@ for _, row_dk in df_dk.iterrows():
     totals_odds = {}
 
     # DK
-    if not pd.isna(row_dk['TOTAL_PTS']):
-        dk_line = row_dk['TOTAL_PTS']
-        dk_over = row_dk['TOTAL_OVER_ODDS']
-        dk_under = row_dk['TOTAL_UNDER_ODDS']
-        totals_odds['DraftKings'] = (dk_line, dk_over, dk_under)
+    # if not pd.isna(row_dk['TOTAL_PTS']):
+    #     dk_line = row_dk['TOTAL_PTS']
+    #     dk_over = row_dk['TOTAL_OVER_ODDS']
+    #     dk_under = row_dk['TOTAL_UNDER_ODDS']
+    #     totals_odds['DraftKings'] = (dk_line, dk_over, dk_under)
 
     # FD
     if not match_fd.empty and not pd.isna(match_fd.iloc[0]['TOTAL_PTS']):
